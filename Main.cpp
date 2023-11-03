@@ -54,6 +54,14 @@ GLuint lightIndices[] =
 };
 
 
+glm::vec4 updateColor(float time, glm::vec4 lightColor) {
+	float red = sin(time) * 0.5f + 0.5f;     // Red component transitions from 1 to 0
+	float green = sin(time + 2.0944f) * 0.5f + 0.5f;  // Green component transitions from 0 to 1
+	float blue = sin(time + 4.1888f) * 0.5f + 0.5f;   // Blue component transitions from 0 to 1
+	return glm::vec4(red, green, blue, 1.0f);
+}
+
+
 int main()
 {
 	// Initialize GLFW
@@ -153,7 +161,7 @@ int main()
 	//	hiku
 	//);
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.0f, 2.5f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
@@ -195,6 +203,14 @@ int main()
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		float time = glfwGetTime();
+		float elapsedTime = fmod(time, 6.0f);  // 6 seconds for a full cycle (2 seconds for each color)
+
+		lightColor = updateColor(elapsedTime, lightColor);
+		//update color
+		glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 		// Handles camera inputs
 		camera.Inputs(window);
