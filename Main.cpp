@@ -88,22 +88,32 @@ int main()
 
 
 
-	std::string texPath = "Resources\\Textures\\";
-
-
-	//// Texture data
-	Texture textures[]
-	{
-		Texture("BOTd.png", "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture("BOT.png", "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
-	};
+	
 
 	// Generates Shader object using shaders default.vert and default.frag
 	Shader shaderProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
+	Shader shaderFloor("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
+	/*Shader shaderhiku("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");*/
 	// Store mesh data in vectors for the mesh
+	std::string texPath = "Resources\\Textures\\";
+	Texture rt[]
+	{
+		Texture((texPath + "BOTr.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "BOT.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "BOTd.png").c_str(), "diffuse", 2, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),	
+	};
+	// Texture data
+	Texture textures[]
+	{
+		Texture((texPath + "planks.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE)
+	};
+
 	std::vector <Vertex> verts(vertices, vertices + sizeof(vertices) / sizeof(Vertex));
 	std::vector <GLuint> ind(indices, indices + sizeof(indices) / sizeof(GLuint));
 	std::vector <Texture> tex(textures, textures + sizeof(textures) / sizeof(Texture));
+	std::vector <Texture> tex2(rt, rt + sizeof(rt) / sizeof(Texture));
 	// Create floor mesh
 	Mesh floor(verts, ind, tex);
 
@@ -124,16 +134,27 @@ int main()
 	
 
 	// Load obj
-	//ObjModel hikorumaru(
-	//	"Resources\\Objects\\robot.obj",
-	//	glm::vec3(0.0f, 0.0f, 0.0f), // position
-	//	glm::vec3(0.1, 0.1f, 0.1f),   // scale
-	//	glm::vec3(1.0f, 0.0f, 0.0f), // rotation (identity quaternion)
-	//	hiko_text
+	ObjModel cube(
+		"Resources\\Objects\\robot.obj",
+		glm::vec3(0.0f, 0.0f, 0.0f), // position
+		glm::vec3(0.1f, 0.1f, 0.1f),   // scale
+		glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
+		tex2
+	);
+	std::vector<Texture> hiku = {
+		Texture((texPath + "tank.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
+	};
+	//ObjModel hiko(
+	//	"Resources\\Objects\\tank.obj",
+	//	glm::vec3(0.5f, 0.0f, 0.0f), // position
+	//	glm::vec3(0.1f, 0.1f, 0.1f),   // scale
+	//	glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
+	//	hiku
 	//);
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+	glm::vec3 lightPos = glm::vec3(0.0f, 2.5f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
 
@@ -147,19 +168,24 @@ int main()
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
+	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
 	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
+	shaderFloor.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderFloor.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
+	glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(shaderFloor.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-
-	
-
+	/*shaderhiku.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(shaderhiku.ID, "model"), 1, GL_FALSE, glm::value_ptr(hiko.getModelMatrix()));
+	glUniform4f(glGetUniformLocation(shaderhiku.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(shaderhiku.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);*/
 	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
 	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 2.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 4.0f));
 
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
@@ -177,8 +203,11 @@ int main()
 
 
 		// Draws different meshes
-		floor.Draw(shaderProgram, camera);
+		floor.Draw(shaderFloor, camera);
 		light.Draw(lightShader, camera);
+		cube.Draw(shaderProgram, camera);
+		//hiko.Draw(shaderhiku, camera);
+		
 
 
 		// Swap the back buffer with the front buffer

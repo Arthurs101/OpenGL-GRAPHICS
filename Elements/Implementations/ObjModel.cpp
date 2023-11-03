@@ -104,21 +104,12 @@ void ObjModel::assemble(
     std::vector<std::vector<float>> normals,
     std::vector<std::vector<std::vector<float>>> faces
 ) {
-    std::vector< GLuint> indices;
+    std::vector<unsigned int> indices;
     std::vector <Vertex> vertx;
+    //create the vertices
     for (int face = 0; face < faces.size(); face++) {
 
-        //push the vertex index
-        indices.push_back( //v0
-            static_cast<GLuint>(faces[face][0][0] - 1)
-        );
-        indices.push_back( //v1
-            static_cast<GLuint>(faces[face][1][0] - 1)
-        );
-        indices.push_back( //2
-            static_cast<GLuint>(faces[face][2][0] - 1)
-        );
-
+   
         //create the coordinates
 
         glm::vec3 v0(
@@ -159,39 +150,50 @@ void ObjModel::assemble(
         }
         else {
             //normal v0
-            vn0.x = normals[faces[face][0][2] - 1][0];
-            vn0.y = normals[faces[face][0][2] - 1][1];
-            vn0.z = normals[faces[face][0][2] - 1][2];
+            vn0 = glm::vec3(
+                normals[faces[face][0][2] - 1][0],
+                normals[faces[face][0][2] - 1][1],
+                normals[faces[face][0][2] - 1][2]
+            );
             //normal v1
-            vn1.x = normals[faces[face][1][2] - 1][0];
-            vn1.y = normals[faces[face][1][2] - 1][1];
-            vn1.z = normals[faces[face][1][2] - 1][2];
+            vn1 = glm::vec3(
+                normals[faces[face][1][2] - 1][0],
+                normals[faces[face][1][2] - 1][1],
+                normals[faces[face][1][2] - 1][2]
+            );
             //normal v2
-            vn2.x = normals[faces[face][2][2] - 1][0];
-            vn2.y = normals[faces[face][2][2] - 1][1];
-            vn2.z = normals[faces[face][2][2] - 1][2];
+            vn2 = glm::vec3(
+                normals[faces[face][2][2] - 1][0],
+                normals[faces[face][2][2] - 1][1],
+                normals[faces[face][2][2] - 1][2]
+            );
         }
         //create the verts
-
+        // Generate random floating-point values between 0 and 1
+        float randomFloat1 = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+        float randomFloat2 = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+        float randomFloat3 = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
         //               COORDINATES           /            COLORS          /           NORMALS         /       TEXTURE COORDINATES    //
-        vertx.push_back(Vertex{//v0
+        Vertex vx0 = Vertex{//v0
             v0,
-            glm::vec3(1,1,1),
+            glm::vec3(randomFloat1,randomFloat3,randomFloat1),
             vn0,
             vt0,
-            });
+        };
+        Vertex vx2 = Vertex{//v2
+           v2,
+           glm::vec3(randomFloat3,randomFloat1,randomFloat3),
+           vn2,
+           vt2,
+        };
+        vertx.push_back(vx0);
         vertx.push_back(Vertex{//v1
            v1,
-           glm::vec3(1,1,1),
+           glm::vec3(randomFloat1,randomFloat2,randomFloat3),
            vn1,
            vt1,
             });
-        vertx.push_back(Vertex{//v2
-           v2,
-           glm::vec3(1,1,1),
-           vn2,
-           vt2,
-            });
+        vertx.push_back(vx2);
 
         if (faces[face].size() == 4) { //if it has 4 verts
             glm::vec3 v3(
@@ -208,47 +210,34 @@ void ObjModel::assemble(
                 vn3 = glm::normalize(v3);
             }
             else {
-                vn3.x = normals[faces[face][3][2] - 1][0];
-                vn3.y = normals[faces[face][3][2] - 1][1];
-                vn3.z = normals[faces[face][3][2] - 1][2];
+                vn3 = glm::vec3(
+                    normals[faces[face][3][2] - 1][0],
+                    normals[faces[face][3][2] - 1][1],
+                    normals[faces[face][3][2] - 1][2]
+                );
             }
 
             //push the indices of v0,v2,v3
             //create the verts
-            vertx.push_back(Vertex{//v0
-            v0,
-            glm::vec3(1,1,1),
-            vn0,
-            vt0,
-                });
+            vertx.push_back(vx0); //v0
 
-            vertx.push_back(Vertex{//v2
-               v2,
-               glm::vec3(1,1,1),
-               vn2,
-               vt2,
-                });
+            vertx.push_back(vx2); //v2
 
             vertx.push_back(Vertex{//v3
                v3,
-               glm::vec3(1,1,1),
+               glm::vec3(randomFloat2,randomFloat3,randomFloat1),
                vn3,
                vt3,
                 });
-
-            //push the vertex index
-            indices.push_back( //v0
-                static_cast<GLuint>(faces[face][0][0] - 1)
-            );
-            indices.push_back( //2
-                static_cast<GLuint>(faces[face][2][0] - 1)
-            );
-            indices.push_back( //2
-                static_cast<GLuint>(faces[face][3][0] - 1)
-            );
         }
     }
-    
+    //create the indices (groups of 3)
+    for (int vtx = 0; vtx < vertx.size(); vtx += 3) {
+        indices.push_back(vtx);
+        indices.push_back(vtx + 1);
+        indices.push_back(vtx + 2);
+    }
+
     //create and push the mesh
     this->meshes.push_back(Mesh(vertx, indices, this->textures));
 }
@@ -271,8 +260,6 @@ glm::mat4 ObjModel::getModelMatrix() {
 }
 void ObjModel::Draw(Shader& shader, Camera& camera)
 {
-   
-
     for (Mesh mesh : this->meshes) {
         mesh.Draw(shader, camera);
     }
