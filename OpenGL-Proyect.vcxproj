@@ -182,6 +182,7 @@
     <None Include="Resources\Shaders\default\default.vert" />
     <None Include="Resources\Shaders\obj\default.frag" />
     <None Include="Resources\Shaders\obj\default.vert" />
+    <None Include="Resources\Shaders\toonshader\toon.frag" />
     <None Include="Resources\Shaders\twister\twist.vert" />
     <None Include="Resources\Shaders\wavecolors\wave.frag" />
   </ItemGroup>

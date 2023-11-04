@@ -109,5 +109,8 @@
     <None Include="Resources\Shaders\wavecolors\wave.frag">
       <Filter>Archivos de recursos\Shaders\wave</Filter>
     </None>
+    <None Include="Resources\Shaders\toonshader\toon.frag">
+      <Filter>Archivos de recursos\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

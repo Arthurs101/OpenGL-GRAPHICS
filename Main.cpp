@@ -103,10 +103,14 @@ int main()
 	Shader defaultProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
 	Shader twisterProgram("Resources\\Shaders\\twister\\twist.vert", "Resources\\Shaders\\default\\default.frag");
 	Shader waveProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\wavecolors\\wave.frag");
+	Shader toonProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\toonshader\\toon.frag");
+
 	defaultProgram.Activate();
 	twisterProgram.Activate();
 	waveProgram.Activate();
-	Shader currShader = twisterProgram;
+	toonProgram.Activate();
+
+	Shader currShader = defaultProgram;
 	Shader shaderFloor("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
 	/*Shader shaderhiku("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");*/
 	// Store mesh data in vectors for the mesh
@@ -168,7 +172,7 @@ int main()
 	//	hiku
 	//);
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.0f, 2.5f, 0.5f);
 	glm::mat4 lightModel = glm::mat4(1.0f);
 	lightModel = glm::translate(lightModel, lightPos);
@@ -229,6 +233,13 @@ int main()
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
+		else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
+			currShader = toonProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
@@ -236,7 +247,7 @@ int main()
 
 
 
-		lightColor = updateColor(elapsedTime, lightColor);
+		//lightColor = updateColor(elapsedTime, lightColor);
 		//update color
 		glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
