@@ -19,6 +19,15 @@
     <Filter Include="Archivos de recursos\OBJ">
       <UniqueIdentifier>{88e52e86-b6e0-49f0-965e-8a27cbba5fb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Archivos de recursos\Shaders">
+      <UniqueIdentifier>{013d017e-8b75-4dfc-93b7-847304ae8b25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de recursos\Shaders\TwistShader">
+      <UniqueIdentifier>{5b7f845a-20b4-4f81-b022-d30a0104dd4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Archivos de recursos\Shaders\wave">
+      <UniqueIdentifier>{09a4925e-8036-4251-bd0f-6cc0c7945443}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -93,6 +102,12 @@
     </None>
     <None Include="Resources\Shaders\obj\default.vert">
       <Filter>Archivos de recursos\OBJ</Filter>
+    </None>
+    <None Include="Resources\Shaders\twister\twist.vert">
+      <Filter>Archivos de recursos\Shaders\TwistShader</Filter>
+    </None>
+    <None Include="Resources\Shaders\wavecolors\wave.frag">
+      <Filter>Archivos de recursos\Shaders\wave</Filter>
     </None>
   </ItemGroup>
 </Project>

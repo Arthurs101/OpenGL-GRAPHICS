@@ -99,7 +99,14 @@ int main()
 	
 
 	// Generates Shader object using shaders default.vert and default.frag
-	Shader shaderProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
+	//shaders for the object
+	Shader defaultProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
+	Shader twisterProgram("Resources\\Shaders\\twister\\twist.vert", "Resources\\Shaders\\default\\default.frag");
+	Shader waveProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\wavecolors\\wave.frag");
+	defaultProgram.Activate();
+	twisterProgram.Activate();
+	waveProgram.Activate();
+	Shader currShader = twisterProgram;
 	Shader shaderFloor("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
 	/*Shader shaderhiku("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");*/
 	// Store mesh data in vectors for the mesh
@@ -175,10 +182,10 @@ int main()
 	glUniformMatrix4fv(glGetUniformLocation(lightShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
-	shaderProgram.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
-	glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+	currShader.Activate();
+	glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+	glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+	glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
 	shaderFloor.Activate();
 	glUniformMatrix4fv(glGetUniformLocation(shaderFloor.ID, "model"), 1, GL_FALSE, glm::value_ptr(objectModel));
@@ -198,20 +205,43 @@ int main()
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
+		float time = glfwGetTime();
+		float elapsedTime = fmod(time, 6.0f);  // 6 seconds for a full cycle (2 seconds for each color)
+		// Input handling
+		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+			currShader = defaultProgram; // Switch to basic shader when 1 is pressed
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+			currShader = twisterProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+			currShader = waveProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		float time = glfwGetTime();
-		float elapsedTime = fmod(time, 6.0f);  // 6 seconds for a full cycle (2 seconds for each color)
+
 
 		lightColor = updateColor(elapsedTime, lightColor);
 		//update color
 		glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform4f(glGetUniformLocation(shaderProgram.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-
+		glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform1f(glGetUniformLocation(currShader.ID, "time"), time); //update time
 		// Handles camera inputs
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader
@@ -221,7 +251,7 @@ int main()
 		// Draws different meshes
 		floor.Draw(shaderFloor, camera);
 		light.Draw(lightShader, camera);
-		cube.Draw(shaderProgram, camera);
+		cube.Draw(currShader, camera);
 		//hiko.Draw(shaderhiku, camera);
 		
 
@@ -235,7 +265,7 @@ int main()
 
 
 	// Delete all the objects we've created
-	shaderProgram.Delete();
+	currShader.Delete();
 	lightShader.Delete();
 	// Delete window before ending the program
 	glfwDestroyWindow(window);
