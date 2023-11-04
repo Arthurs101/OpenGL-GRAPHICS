@@ -112,5 +112,11 @@
     <None Include="Resources\Shaders\toonshader\toon.frag">
       <Filter>Archivos de recursos\Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\wavecolors\wameMult.frag">
+      <Filter>Archivos de recursos\Shaders\wave</Filter>
+    </None>
+    <None Include="Resources\Shaders\wavecolors\turning.vert">
+      <Filter>Archivos de recursos\Shaders\wave</Filter>
+    </None>
   </ItemGroup>
 </Project>

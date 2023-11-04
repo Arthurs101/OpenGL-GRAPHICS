@@ -104,11 +104,13 @@ int main()
 	Shader twisterProgram("Resources\\Shaders\\twister\\twist.vert", "Resources\\Shaders\\default\\default.frag");
 	Shader waveProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\wavecolors\\wave.frag");
 	Shader toonProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\toonshader\\toon.frag");
+	Shader waveMProgram("Resources\\Shaders\\wavecolors\\turning.vert", "Resources\\Shaders\\wavecolors\\wameMult.frag");
 
 	defaultProgram.Activate();
 	twisterProgram.Activate();
 	waveProgram.Activate();
 	toonProgram.Activate();
+	waveMProgram.Activate();
 
 	Shader currShader = defaultProgram;
 	Shader shaderFloor("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
@@ -211,6 +213,7 @@ int main()
 	{
 		float time = glfwGetTime();
 		float elapsedTime = fmod(time, 6.0f);  // 6 seconds for a full cycle (2 seconds for each color)
+
 		// Input handling
 		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 			currShader = defaultProgram; // Switch to basic shader when 1 is pressed
@@ -240,6 +243,13 @@ int main()
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
+		else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+			currShader = waveMProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
@@ -253,6 +263,7 @@ int main()
 		glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform1f(glGetUniformLocation(currShader.ID, "time"), time); //update time
+
 		// Handles camera inputs
 		camera.Inputs(window);
 		// Updates and exports the camera matrix to the Vertex Shader

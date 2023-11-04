@@ -184,6 +184,8 @@
     <None Include="Resources\Shaders\obj\default.vert" />
     <None Include="Resources\Shaders\toonshader\toon.frag" />
     <None Include="Resources\Shaders\twister\twist.vert" />
+    <None Include="Resources\Shaders\wavecolors\turning.vert" />
+    <None Include="Resources\Shaders\wavecolors\wameMult.frag" />
     <None Include="Resources\Shaders\wavecolors\wave.frag" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
