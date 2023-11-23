@@ -118,5 +118,8 @@
     <None Include="Resources\Shaders\wavecolors\turning.vert">
       <Filter>Archivos de recursos\Shaders\wave</Filter>
     </None>
+    <None Include="Resources\Shaders\static\static.frag">
+      <Filter>Archivos de recursos\Shaders\TwistShader</Filter>
+    </None>
   </ItemGroup>
 </Project>

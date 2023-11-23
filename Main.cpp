@@ -54,6 +54,7 @@ GLuint lightIndices[] =
 };
 
 
+
 glm::vec4 updateColor(float time, glm::vec4 lightColor) {
 	float red = sin(time) * 0.5f + 0.5f;     // Red component transitions from 1 to 0
 	float green = sin(time + 2.0944f) * 0.5f + 0.5f;  // Green component transitions from 0 to 1
@@ -105,12 +106,14 @@ int main()
 	Shader waveProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\wavecolors\\wave.frag");
 	Shader toonProgram("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\toonshader\\toon.frag");
 	Shader waveMProgram("Resources\\Shaders\\wavecolors\\turning.vert", "Resources\\Shaders\\wavecolors\\wameMult.frag");
-
+	Shader staticProgram("Resources\\Shaders\\wavecolors\\turning.vert", "Resources\\Shaders\\static\\static.frag");
+	
 	defaultProgram.Activate();
 	twisterProgram.Activate();
 	waveProgram.Activate();
 	toonProgram.Activate();
 	waveMProgram.Activate();
+	staticProgram.Activate();
 
 	Shader currShader = defaultProgram;
 	Shader shaderFloor("Resources\\Shaders\\default\\default.vert", "Resources\\Shaders\\default\\default.frag");
@@ -144,35 +147,56 @@ int main()
 	// Store mesh data in vectors for the mesh
 	std::vector <Vertex> lightVerts(lightVertices, lightVertices + sizeof(lightVertices) / sizeof(Vertex));
 	std::vector <GLuint> lightInd(lightIndices, lightIndices + sizeof(lightIndices) / sizeof(GLuint));
-	//obj
-	// textures
-	/*std::vector<Texture> hiko_text = {
-		Texture((texPath + "planks.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
-		Texture((texPath + "BOT.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
-	};*/
-	// Create light mesh
 	Mesh light(lightVerts, lightInd, tex);
-	
 
 	// Load obj
-	ObjModel cube(
+	ObjModel Mech1(
 		"Resources\\Objects\\robot.obj",
 		glm::vec3(0.0f, 0.0f, 0.0f), // position
 		glm::vec3(0.1f, 0.1f, 0.1f),   // scale
 		glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
 		tex2
 	);
-	std::vector<Texture> hiku = {
-		Texture((texPath + "tank.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+
+	std::vector<Texture> mech2 = {
+		Texture((texPath + "mech.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
 		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
 	};
-	//ObjModel hiko(
-	//	"Resources\\Objects\\tank.obj",
-	//	glm::vec3(0.5f, 0.0f, 0.0f), // position
-	//	glm::vec3(0.1f, 0.1f, 0.1f),   // scale
-	//	glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
-	//	hiku
-	//);
+
+	ObjModel Mech2(
+		"Resources\\Objects\\Mech_BOT.obj",
+		glm::vec3(0.0f, 0.5f, 0.0f), // position
+		glm::vec3(0.3f, 0.3f, 0.3f),   // scale
+		glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
+		mech2
+	);
+
+	std::vector<Texture> aya = {
+		Texture((texPath + "Aya.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
+	};
+
+	ObjModel Aya(
+		"Resources\\Objects\\Aya.obj",
+		glm::vec3(0.0f, 0.0f, 0.0f), // position
+		glm::vec3(0.001f, 0.001f, 0.001f),   // scale
+		glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
+		aya
+	);
+
+	ObjModel skull(
+		"Resources\\Objects\\skull.obj",
+		glm::vec3(0.0f, 0.5f, 0.0f), // position
+		glm::vec3(0.03f, 0.03f, 0.03f),   // scale
+		glm::vec3(-90.0f, 0.0f, 0.0f), // rotation (identity quaternion)
+		{
+			Texture((texPath + "Skull.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+			Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
+		}
+	);
+	//variable for object
+	ObjModel currObj = Mech1;
+
 
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPos = glm::vec3(0.0f, 2.5f, 0.5f);
@@ -189,7 +213,7 @@ int main()
 	glUniform4f(glGetUniformLocation(lightShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 
 	currShader.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+	glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
 	glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
@@ -198,58 +222,52 @@ int main()
 	glUniform4f(glGetUniformLocation(shaderFloor.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 	glUniform3f(glGetUniformLocation(shaderFloor.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 
-	/*shaderhiku.Activate();
-	glUniformMatrix4fv(glGetUniformLocation(shaderhiku.ID, "model"), 1, GL_FALSE, glm::value_ptr(hiko.getModelMatrix()));
-	glUniform4f(glGetUniformLocation(shaderhiku.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-	glUniform3f(glGetUniformLocation(shaderhiku.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);*/
-	// Enables the Depth Buffer
 	glEnable(GL_DEPTH_TEST);
 
 	// Creates camera object
-	Camera camera(width, height, glm::vec3(0.0f, 0.0f, 4.0f));
+	Camera camera(width, height, glm::vec3(0.0f, 1.0f, 4.0f), 45.0f, 0.1f, 100.0f);
+	int cam_mode = 0;
+	//calculate the starting angle
 
+	camera.calculateStartingAngle(currObj.centerMass);
 	// Main while loop
 	while (!glfwWindowShouldClose(window))
 	{
 		float time = glfwGetTime();
 		float elapsedTime = fmod(time, 6.0f);  // 6 seconds for a full cycle (2 seconds for each color)
-
 		// Input handling
 		if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-			currShader = defaultProgram; // Switch to basic shader when 1 is pressed
+			currObj = Mech1; // Switch to basic shader when 1 is pressed
+			camera.ResetPos(currObj.centerMass, currObj.boundingR, currObj.minV, currObj.maxV);
 			currShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-			currShader = twisterProgram;
+			currObj = Mech2; // Switch to basic shader when 1 is pressed
+			camera.ResetPos(currObj.centerMass, currObj.boundingR, currObj.minV, currObj.maxV);
 			currShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		}
-		else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
-			currShader = waveProgram;
+		}else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+			currObj = Aya; // Switch to basic shader when 1 is pressed
+			camera.ResetPos(currObj.centerMass, currObj.boundingR, currObj.minV, currObj.maxV);
 			currShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
 		else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
-			currShader = toonProgram;
+			currObj = skull; // Switch to basic shader when 1 is pressed
+			camera.ResetPos(currObj.centerMass, currObj.boundingR, currObj.minV, currObj.maxV);
 			currShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
 			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
-		else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
-			currShader = waveMProgram;
-			currShader.Activate();
-			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(cube.getModelMatrix()));
-			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-		}
+		
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
@@ -265,16 +283,15 @@ int main()
 		glUniform1f(glGetUniformLocation(currShader.ID, "time"), time); //update time
 
 		// Handles camera inputs
-		camera.Inputs(window);
+		camera.Inputs(window, currObj.centerMass,currObj.boundingR,currObj.minV,currObj.maxV);
 		// Updates and exports the camera matrix to the Vertex Shader
-		camera.updateMatrix(45.0f, 0.1f, 100.0f);
-
-
+		camera.LookAt(currObj.centerMass);
+		
 		// Draws different meshes
 		floor.Draw(shaderFloor, camera);
 		light.Draw(lightShader, camera);
-		cube.Draw(currShader, camera);
-		//hiko.Draw(shaderhiku, camera);
+		currObj.Draw(currShader, camera);
+
 		
 
 

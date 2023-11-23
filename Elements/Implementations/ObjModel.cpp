@@ -96,6 +96,36 @@ void ObjModel::extract_data(const char* filename)
         normals,
         faces
     );
+    //calculate the min and max
+    //make the transformations
+    glm::mat4 model = getModelMatrix();
+    glm::vec3 node = glm::vec3(model * glm::vec4(vertices[0][0], vertices[0][1], vertices[0][2], 1.0f));
+    GLuint CenterX, CenterY, CenterZ ;
+    CenterX = CenterY = CenterZ = 0;
+    max_x = node.x;
+    max_y = node.y;
+    max_z = node.z;
+    for (int i = 0; i < vertices.size(); i++) {
+        node = glm::vec3(model * glm::vec4(vertices[i][0], vertices[i][1], vertices[i][2], 1.0f));
+        CenterX += node.x;
+        CenterY += node.y;
+        CenterZ += node.z;
+    }
+
+    this->centerMass = glm::vec3(
+        (CenterX)/vertices.size(),
+        (CenterY) / vertices.size(),
+        (CenterZ) / vertices.size()
+    );
+    if (max_x < node.x) max_x = node.x;
+    if (max_y < node.y) max_y = node.y;
+    if (max_z < node.z) max_z = node.z;
+    if (min_x < node.x) min_x = node.x;
+    if (min_y < node.y) min_y = node.y;
+    if (min_z < node.z) min_z = node.z;
+    this->maxV = glm::vec3(max_x, max_y, max_z);
+    this->minV = glm::vec3(min_x, min_y, min_z);
+    this ->boundingR = glm::length( maxV - this->centerMass);
 }
 
 void ObjModel::assemble(
@@ -249,9 +279,11 @@ glm::mat4 ObjModel::getModelMatrix() {
     // Apply translation
     modelMatrix = glm::translate(modelMatrix, this->position);
 
-    //// Apply rotation
-    //glm::mat4 rotationMatrix = glm::mat4_cast(glm::quat(this->rotation.x, this->rotation.y, this->rotation.z, 0));
-    //modelMatrix = modelMatrix * rotationMatrix;
+    // Apply rotation
+
+    modelMatrix = glm::rotate(modelMatrix,glm::radians(rotation.x),glm::vec3(1,0,0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.y), glm::vec3(0, 1, 0));
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
     // Apply scale
     modelMatrix = glm::scale(modelMatrix, scale);
