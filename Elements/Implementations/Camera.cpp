@@ -73,8 +73,8 @@ glm::vec3 parametricPos(float r, float angle ,float y) {
 	return glm::vec3(x, y, z);
 }
 void Camera::ResetPos(glm::vec3 target, float Bradious, glm::vec3 minB, glm::vec3 maxB) {
-	this->rad = Bradious * 3; //place it on center point of zoom
-	this->Position.y = (maxB.y + minB.y) /2; //Place it on half height
+	this->rad = Bradious * 5; //place it on center point of zoom
+	this->Position.y = (maxB.y + glm::abs(minB.y)) /2; //Place it on half height
 	//set the new x,y based on the new zoom
 	this->Position = parametricPos(this->rad, this->angle, Position.y);
 }
@@ -90,27 +90,27 @@ void Camera::Inputs(GLFWwindow* window,glm::vec3 target, float Bradious , glm::v
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		if (rad - speed * 0.1 > Bradious) {
-			rad -= speed * 0.1;
+			rad -= 0.1;
 			Position = parametricPos(rad,angle,Position.y);
 		}
 
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		angle += 0.1 * speed;
+		angle += speed;
 		Position = parametricPos(rad, angle, Position.y);
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 
 		if (rad+speed*0.1 < glm::abs(Bradious*5)) {
-			rad += speed * 0.1;
+			rad += speed ;
 			Position = parametricPos(rad, angle, Position.y);
 		}
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		angle -= 0.1 * speed;
+		angle -= 0.1 ;
 		Position = parametricPos(rad, angle, Position.y);
 	}
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)

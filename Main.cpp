@@ -172,14 +172,14 @@ int main()
 	);
 
 	std::vector<Texture> aya = {
-		Texture((texPath + "Aya.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
+		Texture((texPath + "hiko_base.png").c_str(), "diffuse", 0, GL_RGBA, GL_UNSIGNED_BYTE),
 		Texture((texPath + "planksSpec.png").c_str(), "specular", 1, GL_RED, GL_UNSIGNED_BYTE),
 	};
 
 	ObjModel Aya(
-		"Resources\\Objects\\Aya.obj",
+		"Resources\\Objects\\hiko.obj",
 		glm::vec3(0.0f, 0.0f, 0.0f), // position
-		glm::vec3(0.001f, 0.001f, 0.001f),   // scale
+		glm::vec3(0.1f, 0.1f, 0.1f),   // scale
 		glm::vec3(0.0f, 0.0f, 0.0f), // rotation (identity quaternion)
 		aya
 	);
@@ -268,6 +268,43 @@ int main()
 			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
 		}
 		
+		//shaders inputs
+		if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS) {
+			currShader = defaultProgram; // Switch to basic shader when 1 is pressed
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_6) == GLFW_PRESS) {
+			currShader = twisterProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_7) == GLFW_PRESS) {
+			currShader = waveProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_8) == GLFW_PRESS) {
+			currShader = toonProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+		else if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS) {
+			currShader = waveMProgram;
+			currShader.Activate();
+			glUniformMatrix4fv(glGetUniformLocation(currShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(currObj.getModelMatrix()));
+			glUniform4f(glGetUniformLocation(currShader.ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(currShader.ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
+		}
+
 		// Specify the color of the background
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		// Clean the back buffer and depth buffer
